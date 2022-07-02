@@ -1,6 +1,7 @@
 export BUILD_FOLDER="$(pwd)/build"
 export ROOTFS_FOLDER="$(pwd)/rootfs"
-export CONFIG_FOLDER="$(pwd)/config"
+export SRC_FOLDER="$(pwd)/src"
+export BIN_FOLDER="$ROOTFS_FOLDER/usr/bin"
 export LINUX_VERSION="5.15.51"
 export MUSLLIBC_VERSION="1.2.3"
 export BUSYBOX_VERSION="1.35.0"

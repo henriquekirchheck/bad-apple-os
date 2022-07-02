@@ -22,19 +22,22 @@ extract_files () {
 [ -d $ROOTFS_FOLDER ] && clean-warn || mkdir $ROOTFS_FOLDER
 [ -d $BUILD_FOLDER ]  && clean-warn || mkdir $BUILD_FOLDER
 
-mkdir $ROOTFS_FOLDER/{dev,sys,proc,usr,tmp,etc} -p
-mkdir $ROOTFS_FOLDER/usr/{bin,share,local,lib} -p
+create_root () {
+  mkdir $ROOTFS_FOLDER/{dev,sys,proc,usr,tmp,etc,boot} -p
+  mkdir $ROOTFS_FOLDER/usr/{bin,share,local,lib} -p
 
-pushd $ROOTFS_FOLDER > /dev/null
-  ln -s usr/bin bin
-  ln -s usr/bin sbin
-  ln -s usr/lib lib
-  ln -s usr/lib lib64
-popd > /dev/null
-pushd $ROOTFS_FOLDER/usr > /dev/null
-  ln -s bin sbin
-  ln -s lib lib64
-popd > /dev/null
+  pushd $ROOTFS_FOLDER > /dev/null
+    ln -s usr/bin bin
+    ln -s usr/bin sbin
+    ln -s usr/lib lib
+    ln -s usr/lib lib64
+  popd > /dev/null
+  pushd $ROOTFS_FOLDER/usr > /dev/null
+    ln -s bin sbin
+    ln -s lib lib64
+  popd > /dev/null
+}
 
-# download_files
+create_root
+download_files
 extract_files
