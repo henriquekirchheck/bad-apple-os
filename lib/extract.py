@@ -29,15 +29,17 @@ def extractTar(tarFilePath: str, outPath: str, progress: bool = False):
     if not os.path.exists(outPath):
         os.makedirs(outPath)
 
+    filename = os.path.basename(tarFilePath)
+
     if progress:
         with tar.open(tarFilePath, 'r:*') as tarFile:
-            for member in tqdm(iterable=tarFile.getmembers(), total=len(tarFile.getmembers())):
+            for member in tqdm(iterable=tarFile.getmembers(), total=len(tarFile.getmembers()), desc=f"Extracting {filename}"):
                 tarFile.extract(member, outPath)
     else:
         with tar.open(tarFilePath, 'r:*') as tarFile:
             tarFile.extractall(outPath)
 
-    return os.path.join(outPath, remove_tar_extention(os.path.basename(tarFilePath)))
+    return os.path.join(outPath, remove_tar_extention(filename))
 
 
 def extractTars(tarFilePaths: List[str], outPath: str, progress: bool = False):
