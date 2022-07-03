@@ -7,7 +7,7 @@ from lib.download import downloadFiles
 load_dotenv()
 
 linux_version = os.environ.get('LINUX_VERSION', '5.10.128')
-build_folder = os.path.join(os.getcwd(), 'build')
+download_folder = os.path.join(os.getcwd(), 'download')
 
 sources = [
   f"https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-{linux_version}.tar.xz"
@@ -16,6 +16,6 @@ sources = [
 arquives = [{
   'path': path,
   'filename': os.path.basename(path)
-} for path in downloadFiles(sources, build_folder, True)]
+} for path in downloadFiles(sources, download_folder, True)]
 
 print(arquives)

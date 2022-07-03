@@ -1,4 +1,5 @@
 /.venv
 *-test/
 /build
+/download
 __pycache__/
