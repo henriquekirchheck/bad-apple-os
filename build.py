@@ -7,7 +7,7 @@ from lib.download import downloadFiles
 load_dotenv()
 
 linux_version = os.environ.get('LINUX_VERSION', '5.10.128')
-download_folder = os.path.join(os.getcwd(), 'download')
+download_dir = os.path.join(os.getcwd(), 'download')
 
 
 def downloadSources():
@@ -18,7 +18,7 @@ def downloadSources():
     return [{
         'path': path,
         'filename': os.path.basename(path)
-    } for path in downloadFiles(sources, download_folder, True)]
+    } for path in downloadFiles(sources, download_dir, True)]
 
 
 arquives = downloadSources()
