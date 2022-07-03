@@ -21,5 +21,5 @@ def downloadSources():
     } for path in downloadFiles(sources, download_folder, True)]
 
 
-arquive = downloadSources()
-print(arquive)
+arquives = downloadSources()
+print(arquives)

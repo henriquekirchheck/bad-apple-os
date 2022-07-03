@@ -1,21 +1,16 @@
 import os
+import tarfile as tar
 
-from dotenv import load_dotenv
+build_folder = os.path.join(os.getcwd(), 'build')
 
-from lib.download import downloadFiles
-
-load_dotenv()
-
-linux_version = os.environ.get('LINUX_VERSION', '5.10.128')
-download_folder = os.path.join(os.getcwd(), 'download')
-
-sources = [
-  f"https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-{linux_version}.tar.xz"
+arquives = [
+    {
+        'path': '/home/henrique/git/projects/bad-apple-os/download/linux-5.15.52.tar.xz',
+        'filename': 'linux-5.15.52.tar.xz'
+    }
 ]
 
-arquives = [{
-  'path': path,
-  'filename': os.path.basename(path)
-} for path in downloadFiles(sources, download_folder, True)]
 
-print(arquives)
+for
+with tar.open() as tarFile:
+    tarFile.extractall(build_folder)
