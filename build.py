@@ -1,14 +1,14 @@
 import os
+import json
 from typing import List
-
-from dotenv import load_dotenv
 
 from lib.download import downloadFiles
 from lib.extract import extractTars
 
-load_dotenv()
+with open(os.path.join(os.getcwd(), 'info.json')) as info:
+    data = json.load(info)
 
-linux_version = os.environ.get('LINUX_VERSION', '5.10.128')
+linux_version = data['linux-version']
 download_dir = os.path.join(os.getcwd(), 'download')
 build_folder = os.path.join(os.getcwd(), 'build')
 
