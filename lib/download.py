@@ -41,7 +41,7 @@ def downloadFile(url: str, path: str, progress: bool = False):
 
   return os.path.join(path, filename)
 
-def downloadFiles(urls: List[str], path: str, progress: bool):
+def downloadFiles(urls: List[str], path: str, progress: bool = False):
   """
   Downloads all files in a list with the http protocol with the requests python library
 
