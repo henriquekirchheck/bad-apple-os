@@ -1,4 +1,15 @@
 def downloadFile(url: str, path: str, progress: bool = False):
+  """
+  Downloads a file with the http protocol with the requests python library
+
+  Arguments:
+    url: http url string where file will be requested | "https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.15.52.tar.xz"
+    path: directory string where file will be saved   | "/home/USER/Downloads"
+    progress: boolean to show or hide progress bar    | True
+  Returns:
+    The complete file path string                     | "/home/USER/Downloads/linux-5.15.52.tar.xz"
+  """
+
   import os
   import shutil
 
@@ -29,4 +40,5 @@ def downloadFile(url: str, path: str, progress: bool = False):
 
 if __name__ == '__main__':
   import os
+  help(downloadFile)
   print(downloadFile('https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.15.52.tar.xz', os.path.join(os.getcwd(), 'download-test'), False))
