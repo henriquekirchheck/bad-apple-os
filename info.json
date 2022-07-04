@@ -1,6 +1,36 @@
 {
-  "linux": {
-    "version": "5.15.52",
-    "url": "https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-[VERSION].tar.xz"
+  "source": {
+    "linux": {
+      "version": "5.15.52",
+      "url": "https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-[VERSION].tar.xz"
+    }
+  },
+  "rootfs": {
+    "dir": [
+      "boot",
+      "dev",
+      "etc",
+      "opt",
+      "proc",
+      "run",
+      "srv",
+      "sys",
+      "tmp",
+      "usr",
+      "usr/bin",
+      "usr/lib",
+      "usr/local",
+      "usr/share",
+      "usr/include",
+      "var"
+    ],
+    "symlink": [
+      ["bin", "usr/sbin"],
+      ["usr/bin", "bin"],
+      ["usr/bin", "sbin"],
+      ["lib", "usr/lib64"],
+      ["usr/lib", "lib"],
+      ["usr/lib", "lib64"]
+    ]
   }
 }

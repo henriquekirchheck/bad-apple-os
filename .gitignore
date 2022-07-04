@@ -2,4 +2,5 @@
 *-test/
 /build
 /download
+/rootfs
 __pycache__/
