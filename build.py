@@ -4,12 +4,6 @@ import os
 from lib.download import downloadFile
 from lib.extract import extractTar
 
-with open(os.path.join(os.getcwd(), 'info.json')) as info:
-    info = json.load(info)
-
-source = info['source']
-rootfs = info['rootfs']
-
 download_dir = os.path.join(os.getcwd(), 'download')
 build_dir = os.path.join(os.getcwd(), 'build')
 rootfs_dir = os.path.join(os.getcwd(), 'rootfs')
@@ -35,6 +29,16 @@ def createRootFS(rootfs):
         os.symlink(symlink[0], os.path.join(rootfs_dir, symlink[1]))
 
 
-downloadSource(source)
-extractSource(source)
-createRootFS(rootfs)
+def startBuild(jsonInfo):
+    source = jsonInfo['source']
+    rootfs = jsonInfo['rootfs']
+
+    downloadSource(source)
+    extractSource(source)
+    createRootFS(rootfs)
+
+
+with open(os.path.join(os.getcwd(), 'info.json')) as info:
+    jsonInfo = json.load(info)
+
+startBuild(jsonInfo)
