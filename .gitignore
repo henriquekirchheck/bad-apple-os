@@ -1,6 +1,12 @@
+# auto-generated
+/.vscode
 /.venv
+__pycache__/
+
+# Test folders
 *-test/
+
+# Needed folders
 /build
 /download
 /rootfs
-__pycache__/
