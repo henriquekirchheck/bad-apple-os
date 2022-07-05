@@ -6,7 +6,12 @@
         "url": "https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-[VERSION].tar.xz"
       },
       "build": {
-
+        "copy": [["[SRC]/linux-config", "[BUILD_DIR]/.config"]],
+        "step": [
+          ["make", "all"],
+          ["make", "INSTALL_MOD_PATH=[ROOTFS]", "modules_install"],
+          ["make", "INSTALL_PATH=[ROOTFS]/boot", "install"]
+        ]
       }
     }
   },
