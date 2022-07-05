@@ -2,7 +2,12 @@
   "source": {
     "linux": {
       "version": "5.15.52",
-      "url": "https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-[VERSION].tar.xz"
+      "download": {
+        "url": "https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-[VERSION].tar.xz"
+      },
+      "build": {
+
+      }
     }
   },
   "rootfs": {

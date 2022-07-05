@@ -11,14 +11,14 @@ rootfs_dir = os.path.join(os.getcwd(), 'rootfs')
 
 def downloadSource(source):
     for package, info in source.items():
-        source[package]["filePath"] = downloadFile(
-            info["url"].replace('[VERSION]', info['version']), download_dir, True)
+        source[package]['download']["filePath"] = downloadFile(
+            info['download']["url"].replace('[VERSION]', info['version']), download_dir, True)
 
 
 def extractSource(source):
     for package, info in source.items():
-        source[package]["buildDir"] = extractTar(
-            info["filePath"], build_dir, True)
+        source[package]['build']["buildDir"] = extractTar(
+            info['download']["filePath"], build_dir, True)
 
 
 def createRootFS(rootfs):
@@ -30,15 +30,17 @@ def createRootFS(rootfs):
 
 
 def startBuild(jsonInfo):
-    source = jsonInfo['source']
-    rootfs = jsonInfo['rootfs']
-
-    downloadSource(source)
-    extractSource(source)
-    createRootFS(rootfs)
+    downloadSource(jsonInfo['source'])
+    extractSource(jsonInfo['source'])
+    createRootFS(jsonInfo['rootfs'])
 
 
-with open(os.path.join(os.getcwd(), 'info.json')) as info:
-    jsonInfo = json.load(info)
+def getJSONInfo():
+    with open(os.path.join(os.getcwd(), 'info.json')) as info:
+        jsonInfo = json.load(info)
+    return jsonInfo
 
+
+jsonInfo = getJSONInfo()
 startBuild(jsonInfo)
+print(json.dumps(jsonInfo, indent=2))
