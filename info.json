@@ -13,6 +13,23 @@
           ["make", "INSTALL_PATH=[ROOTFS]/boot", "install"]
         ]
       }
+    },
+    "musl-libc": {
+      "version": "1.2.3",
+      "download": {
+        "url": "https://musl.libc.org/releases/musl-[VERSION].tar.gz"
+      },
+      "build": {
+        "step": [
+          [
+            "./configure",
+            "--prefix=[ROOTFS]",
+            "--includedir=[ROOTFS]/usr/include]"
+          ],
+          ["make"],
+          ["make", "install"]
+        ]
+      }
     }
   },
   "rootfs": {

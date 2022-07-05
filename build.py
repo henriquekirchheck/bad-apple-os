@@ -35,13 +35,13 @@ def createRootFS(rootfs):
 def buildSource(source):
     for package, info in source.items():
         print(f"Building {package.upper()}")
-        for copyOperation in info["build"]["copy"]:
+        for copyOperation in info["build"].get("copy", []):
             src_file = copyOperation[0].replace("[ROOTFS]", rootfs_dir).replace(
                 "[SRC]", src_dir).replace("[BUILD_DIR]", info["build"]["buildDir"])
             dest_file = copyOperation[1].replace("[ROOTFS]", rootfs_dir).replace(
                 "[SRC]", src_dir).replace("[BUILD_DIR]", info["build"]["buildDir"])
             shutil.copyfile(src_file, dest_file)
-        for buildStep in info["build"]["step"]:
+        for buildStep in info["build"].get("step", []):
             space = " "
             print(f"{package.upper()}: {space.join(buildStep)}")
             process = subprocess.Popen([arg.replace("[ROOTFS]", rootfs_dir) for arg in buildStep],
