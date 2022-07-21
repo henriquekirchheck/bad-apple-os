@@ -24,7 +24,7 @@
           [
             "./configure",
             "--prefix=[ROOTFS]",
-            "--includedir=[ROOTFS]/usr/include]"
+            "--includedir=[ROOTFS]/usr/include"
           ],
           ["make"],
           ["make", "install"]
