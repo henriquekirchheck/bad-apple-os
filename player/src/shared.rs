@@ -30,7 +30,6 @@ fn open_file_demuxer_with_stream_info(
 
 pub fn start<P: AsRef<Path>>(input: &str, framebuffer_dev: P) -> Result<(), Error> {
     let mut demuxer = open_file_demuxer_with_stream_info(input)?;
-
     start_video(&mut demuxer, framebuffer_dev)?;
 
     Ok(())
