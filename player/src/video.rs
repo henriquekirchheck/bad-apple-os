@@ -1,8 +1,10 @@
-use std::{fs::File, path::Path};
+use std::{fs::File, path::Path, process::exit};
 
 use ac_ffmpeg::{
     codec::{
-        video::{VideoDecoder, VideoFrame},
+        video::{
+            frame::get_pixel_format, scaler::Algorithm, VideoDecoder, VideoFrame, VideoFrameScaler,
+        },
         Decoder,
     },
     format::demuxer::DemuxerWithStreamInfo,
@@ -53,9 +55,42 @@ pub fn start_video<P: AsRef<Path>>(
 }
 
 fn write_video_frame_to_framebuffer(
-    framebuffer_frame: VideoFrame,
+    frame: VideoFrame,
     framebuffer: &mut Framebuffer,
 ) -> Result<(), Error> {
-    // TODO Write Frame to Framebuffer
-    todo!("Make it write the frame to the framebuffer")
+    // let width = framebuffer.var_screen_info.xres as usize;
+    let height = framebuffer.var_screen_info.yres as usize;
+    let line_length = framebuffer.fix_screen_info.line_length as usize;
+    // let bytes_per_pixel = (framebuffer.var_screen_info.bits_per_pixel / 8) as usize;
+
+    let mut scaler = VideoFrameScaler::builder()
+        .algorithm(Algorithm::Bicubic)
+        .source_height(frame.height())
+        .source_width(frame.width())
+        .source_pixel_format(frame.pixel_format())
+        .target_height(frame.height())
+        .target_width(frame.width())
+        .target_pixel_format(get_pixel_format("bgra"))
+        .build()?;
+
+    let scaler_frame = scaler.scale(&frame)?;
+
+    let mut fb_frame = vec![0u8; (line_length * height) as usize];
+
+    for plane in scaler_frame.planes().into_iter() {
+        if plane.line_size() <= 0 {
+            continue;
+        }
+
+        for (y, line) in plane.lines().enumerate() {
+            for (x, color) in line.into_iter().enumerate() {
+                let start_index = (y * line_length + x) as usize;
+                fb_frame[start_index] = *color;
+            }
+        }
+    }
+
+    framebuffer.write_frame(&fb_frame);
+
+    Ok(())
 }
