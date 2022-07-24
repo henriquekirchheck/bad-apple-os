@@ -1,46 +1,71 @@
-use std::{env, fs, thread::sleep, time::Duration};
+use std::{env, process::exit, fs::File};
 
+use ac_ffmpeg::{format::{io::IO, demuxer::{Demuxer, DemuxerWithStreamInfo}}, Error, codec::{video::{VideoDecoder, frame::VideoFrame}, Decoder}};
 use framebuffer::{Framebuffer, KdMode};
-use image::{open, GenericImageView};
 
-fn main() {
-    let args: Vec<String> = env::args().collect();
-    let frames_files_dir_arg = &args[1];
+fn get_args() -> Vec<String> {
+    let mut args: Vec<String> = env::args().collect();
+    args.remove(0);
+    args
+}
 
-    let frames_files_dir = fs::read_dir(frames_files_dir_arg).unwrap();
-    let frames_files_paths: Vec<String> = frames_files_dir
-        .map(|file| file.unwrap().path().display().to_string())
-        .collect();
+fn open_file_demuxer_with_stream_info(path: &str) -> Result<DemuxerWithStreamInfo<File>, Error> {
+    let input = File::open(path)
+        .map_err(|error| Error::new(format!("Can't open especified file {}, error: {}", path, error)))?;
 
-    let mut framebuffer = Framebuffer::new("/dev/fb0").unwrap();
-    let width = framebuffer.var_screen_info.xres;
-    let height = framebuffer.var_screen_info.yres;
-    let line_length = framebuffer.fix_screen_info.line_length;
-    let bytes_per_pixel = framebuffer.var_screen_info.bits_per_pixel / 8;
+    let io = IO::from_seekable_read_stream(input);
 
-    println!(
-        "width: {} \nheight:{} \nline_length: {} \nbytes_per_pixel: {} ",
-        width, height, line_length, bytes_per_pixel
-    );
+    Demuxer::builder()
+        .build(io)?
+        .find_stream_info(None)
+        .map_err(|(_, err)| err)
+}
 
-    let mut frame = vec![0u8; (line_length * height) as usize];
+fn start(input: &str) -> Result<(), Error> {
+    let mut demuxer = open_file_demuxer_with_stream_info(input)?;
 
-    let _ = Framebuffer::set_kd_mode(KdMode::Graphics).unwrap();
+    let (stream_index, (stream, _)) = demuxer
+        .streams()
+        .iter()
+        .map(|stream| (stream, stream.codec_parameters()))
+        .enumerate()
+        .find(|(_, (_, params))| params.is_video_codec())
+        .ok_or_else(|| Error::new("No Video Stream"))?;
 
-    for img_path in frames_files_paths {
-        let img = open(img_path).unwrap();
-        for (x, y, rgba) in img.pixels() {
-            let start_index = (y * line_length + x * bytes_per_pixel) as usize;
-            frame[start_index] = rgba.0[2];
-            frame[start_index + 1] = rgba.0[1];
-            frame[start_index + 2] = rgba.0[0];
+    let mut decoder = VideoDecoder::from_stream(stream)?.build()?;
+
+    while let Some(packet) = demuxer.take()? {
+        if packet.stream_index() != stream_index {
+            continue;
         }
 
-        sleep(Duration::from_millis(33));
+        decoder.push(packet)?;
 
-        let _ = framebuffer.write_frame(&frame);
+        while let Some(frame) = decoder.take()? {
+            write_frame_to_framebuffer(frame)?;
+        }
     }
 
-    sleep(Duration::from_secs(1));
-    let _ = Framebuffer::set_kd_mode(KdMode::Text).unwrap();
+    decoder.flush()?;
+
+    while let Some(frame) = decoder.take()? {
+        write_frame_to_framebuffer(frame)?;
+    }
+
+    Ok(())
+}
+
+fn write_frame_to_framebuffer(frame: VideoFrame) -> Result<(), Error> {
+    // TODO Write Frame to Framebuffer
+    todo!("Make it write the frame to the framebuffer")
+}
+
+fn main() {
+    ctrlc::set_handler(move || {
+        Framebuffer::set_kd_mode(KdMode::Text).unwrap();
+        exit(1);
+    }).expect("Failed to set termination handler");
+
+    let args = get_args();
+    let file_arg = args.get(0).expect("Requires file path");
 }
