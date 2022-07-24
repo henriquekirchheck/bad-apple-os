@@ -1,4 +1,4 @@
-use std::{fs::File, path::Path, process::exit};
+use std::{fs::File, path::Path};
 
 use ac_ffmpeg::{
     codec::{
