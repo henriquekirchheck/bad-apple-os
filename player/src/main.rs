@@ -1,4 +1,4 @@
-use std::{env, process::exit, fs::File};
+use std::{env, process::exit, fs::File, path::Path};
 
 use ac_ffmpeg::{format::{io::IO, demuxer::{Demuxer, DemuxerWithStreamInfo}}, Error, codec::{video::{VideoDecoder, frame::VideoFrame}, Decoder}};
 use framebuffer::{Framebuffer, KdMode};
@@ -21,8 +21,20 @@ fn open_file_demuxer_with_stream_info(path: &str) -> Result<DemuxerWithStreamInf
         .map_err(|(_, err)| err)
 }
 
-fn start(input: &str) -> Result<(), Error> {
+fn start<P: AsRef<Path>>(input: &str, framebuffer_dev: P) -> Result<(), Error> {
     let mut demuxer = open_file_demuxer_with_stream_info(input)?;
+
+    start_video(&mut demuxer, framebuffer_dev)?;
+
+    Ok(())
+}
+
+fn start_video<P: AsRef<Path>>(demuxer: &mut DemuxerWithStreamInfo<File>, framebuffer_dev: P) -> Result<(), Error> {
+    let mut framebuffer = Framebuffer::new(framebuffer_dev)
+        .map_err(|error| Error::new(error.details))?;
+
+    Framebuffer::set_kd_mode(KdMode::Graphics)
+        .map_err(|error| Error::new(error.details))?;
 
     let (stream_index, (stream, _)) = demuxer
         .streams()
@@ -42,20 +54,23 @@ fn start(input: &str) -> Result<(), Error> {
         decoder.push(packet)?;
 
         while let Some(frame) = decoder.take()? {
-            write_frame_to_framebuffer(frame)?;
+            write_video_frame_to_framebuffer(frame, &mut framebuffer)?;
         }
     }
 
     decoder.flush()?;
 
     while let Some(frame) = decoder.take()? {
-        write_frame_to_framebuffer(frame)?;
+        write_video_frame_to_framebuffer(frame, &mut framebuffer)?;
     }
+
+    Framebuffer::set_kd_mode(KdMode::Text)
+        .map_err(|error| Error::new(error.details))?;
 
     Ok(())
 }
 
-fn write_frame_to_framebuffer(frame: VideoFrame) -> Result<(), Error> {
+fn write_video_frame_to_framebuffer(framebuffer_frame: VideoFrame, framebuffer: &mut Framebuffer) -> Result<(), Error> {
     // TODO Write Frame to Framebuffer
     todo!("Make it write the frame to the framebuffer")
 }
@@ -66,6 +81,11 @@ fn main() {
         exit(1);
     }).expect("Failed to set termination handler");
 
+    let framebuffer_default_device = "/dev/fb0".to_owned();
+
     let args = get_args();
-    let file_arg = args.get(0).expect("Requires file path");
+    let video_file_arg = args.get(0).expect("Requires file path");
+    let framebuffer_device_arg = args.get(1).unwrap_or(&framebuffer_default_device);
+
+    start(video_file_arg, framebuffer_device_arg).unwrap();
 }
