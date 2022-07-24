@@ -1,7 +1,10 @@
 use std::{fs::File, path::Path};
 
 use ac_ffmpeg::{
-    codec::{video::{VideoDecoder, VideoFrame}, Decoder},
+    codec::{
+        video::{VideoDecoder, VideoFrame},
+        Decoder,
+    },
     format::demuxer::DemuxerWithStreamInfo,
     Error,
 };

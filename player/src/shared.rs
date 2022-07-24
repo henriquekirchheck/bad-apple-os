@@ -1,4 +1,4 @@
-use std::fs::File;
+use std::{fs::File, path::Path};
 
 use ac_ffmpeg::{
     format::{
@@ -8,7 +8,9 @@ use ac_ffmpeg::{
     Error,
 };
 
-pub fn open_file_demuxer_with_stream_info(
+use crate::video::start_video;
+
+fn open_file_demuxer_with_stream_info(
     path: &str,
 ) -> Result<DemuxerWithStreamInfo<File>, Error> {
     let input = File::open(path).map_err(|error| {
@@ -24,4 +26,12 @@ pub fn open_file_demuxer_with_stream_info(
         .build(io)?
         .find_stream_info(None)
         .map_err(|(_, err)| err)
+}
+
+pub fn start<P: AsRef<Path>>(input: &str, framebuffer_dev: P) -> Result<(), Error> {
+    let mut demuxer = open_file_demuxer_with_stream_info(input)?;
+
+    start_video(&mut demuxer, framebuffer_dev)?;
+
+    Ok(())
 }

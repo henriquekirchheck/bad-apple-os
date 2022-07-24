@@ -1,25 +1,23 @@
 mod shared;
 mod video;
 
-use std::{env, path::Path, process::exit};
+use std::{path::PathBuf, process::exit};
 
-use ac_ffmpeg::Error;
+use clap::Parser;
 use framebuffer::{Framebuffer, KdMode};
-use shared::open_file_demuxer_with_stream_info;
-use video::start_video;
+use shared::start;
 
-fn get_args() -> Vec<String> {
-    let mut args: Vec<String> = env::args().collect();
-    args.remove(0);
-    args
-}
+#[derive(Parser)]
+#[clap(author, version, long_about = None)]
+/// A media player that writes to the Linux Framebuffer
+struct Cli {
+    #[clap(value_parser)]
+    /// Video File Path
+    file: PathBuf,
 
-fn start<P: AsRef<Path>>(input: &str, framebuffer_dev: P) -> Result<(), Error> {
-    let mut demuxer = open_file_demuxer_with_stream_info(input)?;
-
-    start_video(&mut demuxer, framebuffer_dev)?;
-
-    Ok(())
+    #[clap(short, long, value_parser, value_name = "FRAMEBUFFER")]
+    /// Specify Framebuffer (Default: "/dev/fb0")
+    framebuffer: Option<PathBuf>,
 }
 
 fn main() {
@@ -29,11 +27,9 @@ fn main() {
     })
     .expect("Failed to set termination handler");
 
-    let framebuffer_default_device = "/dev/fb0".to_owned();
+    let cli = Cli::parse();
+    let file: PathBuf = cli.file;
+    let framebuffer: PathBuf = cli.framebuffer.unwrap_or(PathBuf::from("/dev/fb0"));
 
-    let args = get_args();
-    let video_file_arg = args.get(0).expect("Requires file path");
-    let framebuffer_device_arg = args.get(1).unwrap_or(&framebuffer_default_device);
-
-    start(video_file_arg, framebuffer_device_arg).unwrap();
+    start(&file.display().to_string(), framebuffer).unwrap();
 }
