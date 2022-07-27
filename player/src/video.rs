@@ -18,6 +18,8 @@ pub fn start_video<P: AsRef<Path>>(
 ) -> Result<(), Error> {
     let mut framebuffer =
         Framebuffer::new(framebuffer_dev).map_err(|error| Error::new(error.details))?;
+    let width = framebuffer.var_screen_info.xres as usize;
+    let height = framebuffer.var_screen_info.yres as usize;
 
     Framebuffer::set_kd_mode(KdMode::Graphics).map_err(|error| Error::new(error.details))?;
 
@@ -31,6 +33,16 @@ pub fn start_video<P: AsRef<Path>>(
 
     let mut decoder = VideoDecoder::from_stream(stream)?.build()?;
 
+    let mut scaler = VideoFrameScaler::builder()
+        .algorithm(Algorithm::FastBilinear)
+        .source_height(decoder.codec_parameters().height())
+        .source_width(decoder.codec_parameters().width())
+        .source_pixel_format(decoder.codec_parameters().pixel_format())
+        .target_height(height)
+        .target_width(width)
+        .target_pixel_format(get_pixel_format("bgra"))
+        .build()?;
+
     while let Some(packet) = demuxer.take()? {
         if packet.stream_index() != stream_index {
             continue;
@@ -39,14 +51,14 @@ pub fn start_video<P: AsRef<Path>>(
         decoder.push(packet)?;
 
         while let Some(frame) = decoder.take()? {
-            write_video_frame_to_framebuffer(frame, &mut framebuffer)?;
+            write_frame_to_framebuffer(frame, &mut scaler, &mut framebuffer)?;
         }
     }
 
     decoder.flush()?;
 
     while let Some(frame) = decoder.take()? {
-        write_video_frame_to_framebuffer(frame, &mut framebuffer)?;
+        write_frame_to_framebuffer(frame, &mut scaler, &mut framebuffer)?;
     }
 
     Framebuffer::set_kd_mode(KdMode::Text).map_err(|error| Error::new(error.details))?;
@@ -54,43 +66,21 @@ pub fn start_video<P: AsRef<Path>>(
     Ok(())
 }
 
-fn write_video_frame_to_framebuffer(
+fn write_frame_to_framebuffer(
     frame: VideoFrame,
+    scaler: &mut VideoFrameScaler,
     framebuffer: &mut Framebuffer,
 ) -> Result<(), Error> {
-    // let width = framebuffer.var_screen_info.xres as usize;
-    let height = framebuffer.var_screen_info.yres as usize;
-    let line_length = framebuffer.fix_screen_info.line_length as usize;
-    // let bytes_per_pixel = (framebuffer.var_screen_info.bits_per_pixel / 8) as usize;
-
-    let mut scaler = VideoFrameScaler::builder()
-        .algorithm(Algorithm::Bicubic)
-        .source_height(frame.height())
-        .source_width(frame.width())
-        .source_pixel_format(frame.pixel_format())
-        .target_height(frame.height())
-        .target_width(frame.width())
-        .target_pixel_format(get_pixel_format("bgra"))
-        .build()?;
-
     let scaler_frame = scaler.scale(&frame)?;
 
-    let mut fb_frame = vec![0u8; (line_length * height) as usize];
-
-    for plane in scaler_frame.planes().into_iter() {
-        if plane.line_size() <= 0 {
-            continue;
-        }
-
-        for (y, line) in plane.lines().enumerate() {
-            for (x, color) in line.into_iter().enumerate() {
-                let start_index = (y * line_length + x) as usize;
-                fb_frame[start_index] = *color;
-            }
-        }
+    if let Some(plane) = scaler_frame
+        .planes()
+        .into_iter()
+        .filter(|plane| !(plane.line_size() <= 0))
+        .next()
+    {
+        framebuffer.write_frame(plane.data());
     }
-
-    framebuffer.write_frame(&fb_frame);
 
     Ok(())
 }
