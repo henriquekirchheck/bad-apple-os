@@ -31,7 +31,7 @@ fn main() {
     let file: PathBuf = cli.file;
     let framebuffer: PathBuf = cli.framebuffer.unwrap_or(PathBuf::from("/dev/fb0"));
 
-    if let Err(error) = start(&file.display().to_string(), framebuffer) {
-        eprintln!("error: {}", error)
+    if let Err(error) = start(file, framebuffer) {
+        eprintln!("{}", error)
     }
 }
