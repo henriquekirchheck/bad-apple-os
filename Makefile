@@ -12,7 +12,7 @@ fetch:
 	./utils/fetch.sh
 
 .PHONY: build
-build: build_rootfs build_linux
+build: build_rootfs build_linux build_buildroot_toolchain
 
 .PHONY: build_%
 build_%:
