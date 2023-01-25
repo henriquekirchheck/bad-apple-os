@@ -6,19 +6,14 @@ export MUSL_LIBC_VERSION := 1.2.3
 export ROOTFS := ${CURDIR}/build/rootfs
 export JOBS := $(shell echo $$(( $$(nproc) - 1 )))
 
-.PHONY: all
 all: fetch build
-
-.PHONY: fetch
 fetch: fetch_kernel fetch_buildroot fetch_musl_libc
+build: build_rootfs build_linux build_buildroot_toolchain
 
-.PHONY: fetch_%
 fetch_%:
 	./utils/fetch.sh $@
 
-.PHONY: build
-build: build_rootfs build_linux build_buildroot_toolchain
-
-.PHONY: build_%
 build_%:
 	./utils/build.sh $@
+
+.PHONY: all fetch fetch_% build build_%
