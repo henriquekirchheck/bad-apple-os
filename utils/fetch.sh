@@ -14,9 +14,12 @@ fetch_buildroot() {
   popd || exit 1
 }
 
-fetch() {
-  fetch_kernel
-  fetch_buildroot
+fetch_musl_libc() {
+  mkdir -p build/compile/lib
+  pushd build/compile/lib || exit 1
+    wget -N "https://musl.libc.org/releases/musl-${MUSL_LIBC_VERSION}.tar.gz"
+    tar -xv --keep-newer-files -f "musl-${MUSL_LIBC_VERSION}.tar.gz"
+  popd || exit 1
 }
 
-fetch
+$1
