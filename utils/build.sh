@@ -35,7 +35,7 @@ build_musl_libc() {
 
 build_busybox() {
   pushd build/compile/bin/"busybox-${BUSYBOX_VERSION}" || exit 1
-    cp ../../../../config/busybox-x86_64.config ./.config
+    cp ../../../../config/busybox.x86_64.config ./.config
     make -j"${JOBS}" CROSS_COMPILE="${CROSSCC}-" ARCH="x86_64"
     make install CONFIG_PREFIX="${ROOTFS}"
   popd || exit 1
