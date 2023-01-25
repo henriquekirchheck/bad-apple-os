@@ -28,8 +28,16 @@ build_buildroot_toolchain() {
 build_musl_libc() {
   pushd build/compile/lib/"musl-${MUSL_LIBC_VERSION}" || exit 1
     CROSS_COMPILE="${CROSSCC}-" CC="${CROSSCC}-gcc" ./configure --prefix=/usr --target=x86_64
-    make
+    make -j"${JOBS}"
     make install DESTDIR="${ROOTFS}"
+  popd || exit 1
+}
+
+build_busybox() {
+  pushd build/compile/bin/"busybox-${BUSYBOX_VERSION}" || exit 1
+    cp ../../../../config/busybox-x86_64.config ./.config
+    make -j"${JOBS}" CROSS_COMPILE="${CROSSCC}-" ARCH="x86_64"
+    make install CONFIG_PREFIX="${ROOTFS}"
   popd || exit 1
 }
 

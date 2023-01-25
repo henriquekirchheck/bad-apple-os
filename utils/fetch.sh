@@ -22,4 +22,12 @@ fetch_musl_libc() {
   popd || exit 1
 }
 
+fetch_busybox() {
+  mkdir -p build/compile/bin
+  pushd build/compile/bin || exit 1
+    wget -N "https://busybox.net/downloads/busybox-${BUSYBOX_VERSION}.tar.bz2"
+    tar -xv --keep-newer-files -f "busybox-${BUSYBOX_VERSION}.tar.bz2"
+  popd || exit 1
+}
+
 $1
