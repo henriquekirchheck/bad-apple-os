@@ -78,4 +78,12 @@ fetch_spirv_tools() {
   popd || exit 1
 }
 
+fetch_glslang() {
+  mkdir -p build/compile/lib
+  pushd build/compile/lib || exit 1
+    wget -N "https://github.com/KhronosGroup/glslang/archive/${GLSLANG_VERSION}.tar.gz" -O "glslang-${GLSLANG_VERSION}.tar.gz"
+    tar --one-top-level="glslang-${GLSLANG_VERSION}" -xv --keep-newer-files -f "glslang-${GLSLANG_VERSION}.tar.gz"
+  popd || exit 1
+}
+
 $1

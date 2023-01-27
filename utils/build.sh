@@ -146,4 +146,36 @@ build_spirv_tools() {
   popd || exit 1
 }
 
+build_glslang() {
+  pushd build/compile/lib/"glslang-${GLSLANG_VERSION}" || exit 1
+    CXXFLAGS+=" -ffat-lto-objects"
+    cmake \
+      -Bbuild-shared \
+      -GNinja \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_BUILD_TYPE=None \
+      -DBUILD_SHARED_LIBS=ON \
+      -DCMAKE_SYSTEM_NAME=Linux \
+      -DCMAKE_SYSTEM_PROCESSOR=x86_64 \
+      -DCMAKE_SYSROOT="${ROOTFS}" \
+      -DCMAKE_CXX_COMPILER="${CROSSCC}-g++"
+    ninja -Cbuild-shared
+
+    cmake \
+      -Bbuild-static \
+      -GNinja \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_BUILD_TYPE=None \
+      -DBUILD_SHARED_LIBS=OFF \
+      -DCMAKE_SYSTEM_NAME=Linux \
+      -DCMAKE_SYSTEM_PROCESSOR=x86_64 \
+      -DCMAKE_SYSROOT="${ROOTFS}" \
+      -DCMAKE_CXX_COMPILER="${CROSSCC}-g++"
+    ninja -Cbuild-static
+
+    DESTDIR="${ROOTFS}" ninja -C build-shared install
+    DESTDIR="${ROOTFS}" ninja -C build-static install
+  popd || exit 1
+}
+
 $1;
