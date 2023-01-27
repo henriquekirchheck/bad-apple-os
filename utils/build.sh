@@ -108,4 +108,42 @@ build_opus() {
   popd || exit 1
 }
 
+build_spirv_tools() {
+  pushd build/compile/lib/"SPIRV-Headers-sdk-${SPIRV_HEADERS_VERSION}" || exit 1
+    cmake \
+      -Bbuild \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_SYSTEM_NAME=Linux \
+      -DCMAKE_SYSTEM_PROCESSOR=x86_64 \
+      -DCMAKE_SYSROOT="${ROOTFS}" \
+      -DCMAKE_C_COMPILER="${CROSSCC}-gcc" \
+      -DCMAKE_CXX_COMPILER="${CROSSCC}-g++"
+
+    make -j"${JOBS}" -c build
+    make -C build DESTDIR="${ROOTFS}" install
+  popd || exit 1
+
+  pushd build/compile/lib/"SPIRV-Tools" || exit 1
+    cmake \
+      -Bbuild \
+      -GNinja \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_INSTALL_LIBDIR=lib \
+      -DCMAKE_BUILD_TYPE=None \
+      -DSPIRV_WERROR=Off \
+      -DBUILD_SHARED_LIBS=ON \
+      -DSPIRV_TOOLS_BUILD_STATIC=OFF \
+      -DSPIRV-Headers_SOURCE_DIR=/usr \
+      -DCMAKE_SYSTEM_NAME=Linux \
+      -DCMAKE_SYSTEM_PROCESSOR=x86_64 \
+      -DCMAKE_SYSROOT="${ROOTFS}" \
+      -DCMAKE_C_COMPILER="${CROSSCC}-gcc" \
+      -DCMAKE_CXX_COMPILER="${CROSSCC}-g++"
+
+    ninja -C build
+
+    DESTDIR="${ROOTFS}" ninja -C build install
+  popd || exit 1
+}
+
 $1;

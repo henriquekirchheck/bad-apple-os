@@ -69,4 +69,13 @@ fetch_opus() {
   popd || exit 1
 }
 
+fetch_spirv_tools() {
+  mkdir -p build/compile/lib
+  pushd build/compile/lib || exit 1
+    wget -N "https://github.com/KhronosGroup/SPIRV-Headers/archive/refs/tags/sdk-${SPIRV_HEADERS_VERSION}/spirv-headers-${SPIRV_HEADERS_VERSION}.tar.gz"
+    git clone --depth 1 --branch "v${SPIRV_TOOLS_VERSION}" "https://github.com/KhronosGroup/SPIRV-Tools.git"
+    tar -xv --keep-newer-files -f "spirv-headers-${SPIRV_HEADERS_VERSION}.tar.gz"
+  popd || exit 1
+}
+
 $1
