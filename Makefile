@@ -17,8 +17,8 @@ export ROOTFS := ${CURDIR}/build/rootfs
 export JOBS := $(shell echo $$(( $$(nproc) - 1 )))
 
 all: fetch build
-fetch: fetch_kernel fetch_buildroot fetch_musl_libc fetch_busybox fetch_alsa fetch_libgcc fetch_libvpx fetch_opus fetch_spirv_tools
-build: build_rootfs build_linux build_buildroot_toolchain build_musl_libc build_busybox build_alsa build_libgcc build_libvpx build_opus
+fetch: fetch_kernel fetch_buildroot fetch_musl_libc fetch_busybox fetch_alsa fetch_libgcc fetch_libvpx fetch_opus fetch_spirv_tools fetch_glslang
+build: build_rootfs build_linux build_buildroot_toolchain build_musl_libc build_busybox build_alsa build_libgcc build_libvpx build_opus build_spirv_tools build_glslang
 
 fetch_%:
 	./utils/fetch.sh $@
