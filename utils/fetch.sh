@@ -42,4 +42,15 @@ fetch_alsa() {
   popd || exit 1
 }
 
+fetch_libgcc() {
+  mkdir -p build/compile/lib
+  pushd build/compile/lib || exit 1
+    wget -N "https://alpha.de.repo.voidlinux.org/current/musl/libgcc-${LIBGCC_VERSION}.x86_64-musl.xbps"
+    wget -N "https://alpha.de.repo.voidlinux.org/current/musl/libstdc++-${LIBGCC_VERSION}.x86_64-musl.xbps"
+    tar --one-top-level="libgcc-${LIBGCC_VERSION}" -xv --keep-newer-files -f "libgcc-${LIBGCC_VERSION}.x86_64-musl.xbps"
+    tar --one-top-level="libgcc-${LIBGCC_VERSION}" -xv --keep-newer-files -f "libstdc++-${LIBGCC_VERSION}.x86_64-musl.xbps"
+    rm "libgcc-${LIBGCC_VERSION}"/*.plist
+  popd || exit 1
+}
+
 $1

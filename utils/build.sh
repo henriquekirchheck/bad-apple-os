@@ -68,4 +68,10 @@ build_alsa() {
   popd || exit 1
 }
 
+build_libgcc() {
+  pushd build/compile/lib/"libgcc-${LIBGCC_VERSION}" || exit 1
+    cp -r ./* "${ROOTFS}/"
+  popd || exit 1
+}
+
 $1;
