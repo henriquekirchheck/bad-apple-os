@@ -62,7 +62,7 @@ build_alsa() {
     CC="${CROSSCC}-gcc" LDFLAGS="-L${ROOTFS}/usr/lib" ./configure --host=x86_64-pc-linux-musl --prefix=/usr --without-debug
 
     sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-    make
+    make -j"${JOBS}"
 
     make DESTDIR="${ROOTFS}" install
   popd || exit 1
@@ -71,6 +71,40 @@ build_alsa() {
 build_libgcc() {
   pushd build/compile/lib/"libgcc-${LIBGCC_VERSION}" || exit 1
     cp -r ./* "${ROOTFS}/"
+  popd || exit 1
+}
+
+build_libvpx() {
+  pushd build/compile/lib/"libvpx-${LIBVPX_VERSION}" || exit 1
+    CFLAGS+=" -ffat-lto-objects"
+    CXXFLAGS+=" -ffat-lto-objects"
+
+    LDFLAGS="-L${ROOTFS}/usr/lib" CROSS="${CROSSCC}-" ./configure \
+      --target=generic-gnu \
+      --prefix=/usr \
+      --disable-install-docs \
+      --disable-install-srcs \
+      --disable-unit-tests \
+      --enable-pic \
+      --enable-postproc \
+      --enable-runtime-cpu-detect \
+      --enable-shared \
+      --enable-vp8 \
+      --enable-vp9 \
+      --enable-vp9-highbitdepth \
+      --enable-vp9-temporal-denoising
+
+    make -j"${JOBS}"
+    make DIST_DIR="${ROOTFS}/usr" install
+  popd || exit 1
+}
+
+build_opus() {
+  pushd build/compile/lib/"opus-${LIBOPUS_VERSION}" || exit 1
+    LDFLAGS="-L${ROOTFS}/usr/lib" CC="${CROSSCC}-gcc" ./configure --prefix=/usr --disable-static --enable-custom-modes --host=x86_64-linux-musl --with-sysroot="${ROOTFS}"
+
+    make -j"${JOBS}"
+    make DESTDIR="${ROOTFS}" install
   popd || exit 1
 }
 

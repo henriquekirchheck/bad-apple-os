@@ -53,4 +53,20 @@ fetch_libgcc() {
   popd || exit 1
 }
 
+fetch_libvpx() {
+  mkdir -p build/compile/lib
+  pushd build/compile/lib || exit 1
+    wget -N "https://chromium.googlesource.com/webm/libvpx/+archive/v${LIBVPX_VERSION}.tar.gz" -O "libvpx-${LIBVPX_VERSION}.tar.gz"
+    tar --one-top-level="libvpx-${LIBVPX_VERSION}" -xv --keep-newer-files -f "libvpx-${LIBVPX_VERSION}.tar.gz"
+  popd || exit 1
+}
+
+fetch_opus() {
+  mkdir -p build/compile/lib
+  pushd build/compile/lib || exit 1
+    wget -N "https://archive.mozilla.org/pub/opus/opus-${LIBOPUS_VERSION}.tar.gz"
+    tar -xv --keep-newer-files -f "opus-${LIBOPUS_VERSION}.tar.gz"
+  popd || exit 1
+}
+
 $1
