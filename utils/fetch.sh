@@ -30,4 +30,16 @@ fetch_busybox() {
   popd || exit 1
 }
 
+fetch_alsa() {
+  mkdir -p build/compile/lib
+  pushd build/compile/lib || exit 1
+    wget -N "https://www.alsa-project.org/files/pub/lib/alsa-lib-${ALSA_LIB_VERSION}.tar.bz2"
+    wget -N "https://www.alsa-project.org/files/pub/lib/alsa-topology-conf-${ALSA_TOPOLOGY_CONF_VERSION}.tar.bz2"
+    wget -N "https://www.alsa-project.org/files/pub/lib/alsa-ucm-conf-${ALSA_UCM_CONF_VERSION}.tar.bz2"
+    tar -xv --keep-newer-files -f "alsa-lib-${ALSA_LIB_VERSION}.tar.bz2"
+    tar -xv --keep-newer-files -f "alsa-topology-conf-${ALSA_TOPOLOGY_CONF_VERSION}.tar.bz2"
+    tar -xv --keep-newer-files -f "alsa-ucm-conf-${ALSA_UCM_CONF_VERSION}.tar.bz2"
+  popd || exit 1
+}
+
 $1

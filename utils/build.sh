@@ -41,4 +41,31 @@ build_busybox() {
   popd || exit 1
 }
 
+build_alsa() {
+  mkdir -p "${ROOTFS}/usr/share/alsa"
+
+  pushd build/compile/lib/"alsa-topology-conf-${ALSA_TOPOLOGY_CONF_VERSION}" || exit 1
+    mkdir -p "${ROOTFS}/usr/share/alsa/topology"
+    for dir in topology/*; do
+      mkdir -p "${ROOTFS}/usr/share/alsa/topology/$(basename "$dir")"
+      cp -a "${dir}"/*.conf "${ROOTFS}/usr/share/alsa/topology/$(basename "$dir")"
+    done
+  popd || exit 1
+
+  pushd build/compile/lib/"alsa-ucm-conf-${ALSA_UCM_CONF_VERSION}" || exit 1
+    cp -a ucm2 "${ROOTFS}/usr/share/alsa/"
+  popd || exit 1
+
+  pushd build/compile/lib/"alsa-lib-${ALSA_LIB_VERSION}" || exit 1
+    CFLAGS+=" -flto-partition=none"
+
+    CC="${CROSSCC}-gcc" LDFLAGS="-L${ROOTFS}/usr/lib" ./configure --host=x86_64-pc-linux-musl --prefix=/usr --without-debug
+
+    sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+    make
+
+    make DESTDIR="${ROOTFS}" install
+  popd || exit 1
+}
+
 $1;
