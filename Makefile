@@ -7,6 +7,7 @@ export BUSYBOX_VERSION := 1.36.0
 export LIBGCC_VERSION := 12.2.0_1
 export LIBVPX_VERSION := 1.12.0
 export LIBOPUS_VERSION := 1.3.1
+export SHADERC_VERSION := 2022.4
 export SPIRV_TOOLS_VERSION := 2022.4
 export SPIRV_HEADERS_VERSION := 1.3.236.0
 export GLSLANG_VERSION := 11.13.0
@@ -17,8 +18,8 @@ export ROOTFS := ${CURDIR}/build/rootfs
 export JOBS := $(shell echo $$(( $$(nproc) - 1 )))
 
 all: fetch build
-fetch: fetch_kernel fetch_buildroot fetch_musl_libc fetch_busybox fetch_alsa fetch_libgcc fetch_libvpx fetch_opus fetch_spirv_tools fetch_glslang
-build: build_rootfs build_linux build_buildroot_toolchain build_musl_libc build_busybox build_alsa build_libgcc build_libvpx build_opus build_spirv_tools build_glslang
+fetch: fetch_kernel fetch_buildroot fetch_musl_libc fetch_busybox fetch_alsa fetch_libgcc fetch_libvpx fetch_opus fetch_spirv_tools fetch_glslang fetch_shaderc
+build: build_rootfs build_linux build_buildroot_toolchain build_musl_libc build_busybox build_alsa build_libgcc build_libvpx build_opus build_spirv_tools build_glslang build_shaderc
 
 fetch_%:
 	./utils/fetch.sh $@

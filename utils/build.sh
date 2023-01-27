@@ -178,4 +178,34 @@ build_glslang() {
   popd || exit 1
 }
 
+build_shaderc() {
+  pushd build/compile/lib/"shaderc-${SHADERC_VERSION}" || exit 1
+    sed '/examples/d;/third_party/d' -i CMakeLists.txt
+    sed '/build-version/d' -i glslc/CMakeLists.txt
+
+cat <<- EOF > glslc/src/build-version.inc
+"${GLSLANG_VERSION}\\n"
+"${SPIRV_TOOLS_VERSION}\\n"
+"${GLSLANG_VERSION}\\n"
+EOF
+
+    cmake \
+      -Bbuild \
+      -GNinja \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_CXX_FLAGS="$CXXFLAGS -ffat-lto-objects" \
+      -DSHADERC_SKIP_TESTS=ON \
+      -Dglslang_SOURCE_DIR="${ROOTFS}/usr/include/glslang" \
+      -DCMAKE_SYSTEM_NAME=Linux \
+      -DCMAKE_SYSTEM_PROCESSOR=x86_64 \
+      -DCMAKE_SYSROOT="${ROOTFS}" \
+      -DCMAKE_C_COMPILER="${CROSSCC}-gcc" \
+      -DCMAKE_CXX_COMPILER="${CROSSCC}-g++"
+    ninja -C build
+
+    DESTDIR="${ROOTFS}" ninja -C build install
+  popd || exit 1
+}
+
 $1;

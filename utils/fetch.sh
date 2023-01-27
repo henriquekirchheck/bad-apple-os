@@ -86,4 +86,12 @@ fetch_glslang() {
   popd || exit 1
 }
 
+fetch_shaderc() {
+  mkdir -p build/compile/lib
+  pushd build/compile/lib || exit 1
+    wget -N "https://github.com/google/shaderc/archive/v${SHADERC_VERSION}/shaderc-${SHADERC_VERSION}.tar.gz"
+    tar -xv --keep-newer-files -f "shaderc-${SHADERC_VERSION}.tar.gz"
+  popd || exit 1
+}
+
 $1
