@@ -27,4 +27,7 @@ fetch_%:
 build_%:
 	./utils/build.sh $@
 
-.PHONY: all fetch fetch_% build build_%
+iso:
+	./utils/iso.sh
+
+.PHONY: all fetch fetch_% build build_% iso

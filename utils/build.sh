@@ -2,12 +2,13 @@ PATH="${PWD}/build/compile/crosscompile/buildroot-${BUILDROOT_VERSION}/output/ho
 CROSSCC="x86_64-buildroot-linux-musl"
 
 build_rootfs() {
-  mkdir -p build/rootfs/{etc,usr,dev,proc,sys,usr/{bin,lib,sbin,include},tmp}
+  mkdir -p build/rootfs/{etc,usr,dev,proc,sys,usr/{bin,lib,sbin,include},tmp,run}
   pushd build/rootfs || exit 1
     ln -s usr/bin bin
     ln -s usr/lib lib
     ln -s usr/sbin sbin
   popd || exit 1
+  cp bin/init build/rootfs
 }
 
 build_linux() {
@@ -36,7 +37,7 @@ build_musl_libc() {
 build_busybox() {
   pushd build/compile/bin/"busybox-${BUSYBOX_VERSION}" || exit 1
     cp ../../../../config/busybox.x86_64.config ./.config
-    make -j"${JOBS}" CROSS_COMPILE="${CROSSCC}-" ARCH="x86_64"
+    make -j"${JOBS}" CROSS_COMPILE="${CROSSCC}-" ARCH="x86_64" CONFIG_STATIC=y busybox
     make install CONFIG_PREFIX="${ROOTFS}"
   popd || exit 1
 }
