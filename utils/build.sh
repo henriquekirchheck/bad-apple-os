@@ -195,7 +195,7 @@ EOF
       -GNinja \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_INSTALL_PREFIX=/usr \
-      -DCMAKE_CXX_FLAGS="$CXXFLAGS -ffat-lto-objects" \
+      -DCMAKE_CXX_FLAGS="${CXXFLAGS} -ffat-lto-objects" \
       -DSHADERC_SKIP_TESTS=ON \
       -Dglslang_SOURCE_DIR="${ROOTFS}/usr/include/glslang" \
       -DCMAKE_SYSTEM_NAME=Linux \
@@ -206,6 +206,25 @@ EOF
     ninja -C build
 
     DESTDIR="${ROOTFS}" ninja -C build install
+  popd || exit 1
+}
+
+build_brotli() {
+  pushd build/compile/lib/"brotli-${BROTLI_VERSION}" || exit 1
+    cmake \
+      -Bbuild \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DBUILD_SHARED_LIBS=True \
+      -DCMAKE_C_FLAGS="${CFLAGS} -ffat-lto-objects" \
+      -DCMAKE_SYSTEM_NAME=Linux \
+      -DCMAKE_SYSTEM_PROCESSOR=x86_64 \
+      -DCMAKE_SYSROOT="${ROOTFS}" \
+      -DCMAKE_C_COMPILER="${CROSSCC}-gcc" \
+      -DCMAKE_CXX_COMPILER="${CROSSCC}-g++"
+
+    cmake --build build -v
+    DESTDIR="${ROOTFS}" cmake --install build
   popd || exit 1
 }
 

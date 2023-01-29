@@ -94,4 +94,12 @@ fetch_shaderc() {
   popd || exit 1
 }
 
+fetch_brotli() {
+  mkdir -p build/compile/lib
+  pushd build/compile/lib || exit 1
+    wget -N "https://github.com/google/brotli/archive/refs/tags/v${BROTLI_VERSION}.tar.gz" -O "brotli-${BROTLI_VERSION}.tar.gz"
+    tar --one-top-level="brotli-${BROTLI_VERSION}" -xv --keep-newer-files -f "brotli-${BROTLI_VERSION}.tar.gz"
+  popd || exit 1
+}
+
 $1
