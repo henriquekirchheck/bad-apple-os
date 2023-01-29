@@ -10,6 +10,8 @@ export LIBOPUS_VERSION := 1.3.1
 export SHADERC_VERSION := 2022.4
 export BROTLI_VERSION := 1.0.9
 export PCRE2_VERSION := 10.42
+export ZLIB_VERSION := 1.2.13
+export BZIP2_VERSION := 1.0.8
 export SPIRV_TOOLS_VERSION := 2022.4
 export SPIRV_HEADERS_VERSION := 1.3.236.0
 export GLSLANG_VERSION := 11.13.0
@@ -20,8 +22,8 @@ export ROOTFS := ${CURDIR}/build/rootfs
 export JOBS := $(shell echo $$(( $$(nproc) - 1 )))
 
 all: fetch build
-fetch: fetch_kernel fetch_buildroot fetch_musl_libc fetch_busybox fetch_alsa fetch_libgcc fetch_libvpx fetch_opus fetch_spirv_tools fetch_glslang fetch_shaderc
-build: build_rootfs build_linux build_buildroot_toolchain build_musl_libc build_busybox build_alsa build_libgcc build_libvpx build_opus build_spirv_tools build_glslang build_shaderc
+fetch: fetch_kernel fetch_buildroot fetch_musl_libc fetch_busybox fetch_alsa fetch_libgcc fetch_libvpx fetch_opus fetch_spirv_tools fetch_glslang fetch_shaderc fetch_brotli fetch_zlib fetch_bzip2 fetch_pcre2
+build: build_rootfs build_linux build_buildroot_toolchain build_musl_libc build_busybox build_alsa build_libgcc build_libvpx build_opus build_spirv_tools build_glslang build_shaderc build_brotli build_zlib build_bzip2 build_pcre2
 
 fetch_%:
 	./utils/fetch.sh $@

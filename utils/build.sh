@@ -228,11 +228,44 @@ build_brotli() {
   popd || exit 1
 }
 
+build_zlib() {
+  pushd build/compile/lib/"zlib-${ZLIB_VERSION}" || exit 1
+    CFLAGS+=" -ffat-lto-objects"
+    CROSS_PREFIX="${CROSSCC}-" ./configure \
+      --prefix=/usr
+
+    make -j"$PROCS"
+
+    make DESTDIR="${ROOTFS}" install
+
+  popd || exit 1
+}
+
+build_bzip2() {
+  pushd build/compile/lib/"bzip2-bzip2-${BZIP2_VERSION}" || exit 1
+    make -f Makefile-libbz2_so CC="${CROSSCC}-gcc -L${ROOTFS}/usr/lib"
+    make bzip2 bzip2recover CC="${CROSSCC}-gcc" AR="${CROSSCC}-ar" LDFLAGS="-L${ROOTFS}/usr/lib"
+
+    cp -a bzip2-shared "${ROOTFS}"/usr/bin/bzip2
+    cp -a bzip2recover bzdiff bzgrep bzmore "${ROOTFS}"/usr/bin
+    ln -sf bzip2 "${ROOTFS}"/usr/bin/bunzip2
+    ln -sf bzip2 "${ROOTFS}"/usr/bin/bzcat
+
+    cp -a libbz2.a "${ROOTFS}"/usr/lib
+    cp -a libbz2.so* "${ROOTFS}"/usr/lib
+    ln -s libbz2.so."${BZIP2_VERSION}" "${ROOTFS}"/usr/lib/libbz2.so
+    ln -s libbz2.so."${BZIP2_VERSION}" "${ROOTFS}"/usr/lib/libbz2.so.1
+
+    cp -a bzlib.h "${ROOTFS}"/usr/include
+  popd || exit 1
+}
+
 build_pcre2() {
   pushd build/compile/lib/"pcre2-${PCRE2_VERSION}" || exit 1
     CFLAGS+=" -ffat-lto-objects"
     CXXFLAGS+=" -ffat-lto-objects"
 
+    CPPFLAGS="-I${ROOTFS}/usr/include" \
     CC="${CROSSCC}-gcc" \
     LDFLAGS="-L${ROOTFS}/usr/lib" \
     PKG_CONFIG_LIBDIR="${ROOTFS}/usr/lib" \
@@ -241,6 +274,8 @@ build_pcre2() {
       --enable-pcre2-16 \
       --enable-pcre2-32 \
       --enable-jit \
+      --enable-pcre2grep-libz \
+      --enable-pcre2grep-libbz2 \
       --host=x86_64-pc-linux-musl
 
     make -j"$PROCS"

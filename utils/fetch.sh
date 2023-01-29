@@ -102,6 +102,22 @@ fetch_brotli() {
   popd || exit 1
 }
 
+fetch_zlib() {
+  mkdir -p build/compile/lib
+  pushd build/compile/lib || exit 1
+    wget -N "https://zlib.net/zlib-${ZLIB_VERSION}.tar.gz"
+    tar -xv --keep-newer-files -f "zlib-${ZLIB_VERSION}.tar.gz"
+  popd || exit 1
+}
+
+fetch_bzip2() {
+  mkdir -p build/compile/lib
+  pushd build/compile/lib || exit 1
+    wget -N "https://github.com/libarchive/bzip2/archive/refs/tags/bzip2-${BZIP2_VERSION}.tar.gz"
+    tar -xv --keep-newer-files -f "bzip2-${BZIP2_VERSION}.tar.gz"
+  popd || exit 1
+}
+
 fetch_pcre2() {
   mkdir -p build/compile/lib
   pushd build/compile/lib || exit 1
