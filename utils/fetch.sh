@@ -102,4 +102,12 @@ fetch_brotli() {
   popd || exit 1
 }
 
+fetch_pcre2() {
+  mkdir -p build/compile/lib
+  pushd build/compile/lib || exit 1
+    wget -N "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${PCRE2_VERSION}/pcre2-${PCRE2_VERSION}.tar.bz2"
+    tar -xv --keep-newer-files -f "pcre2-${PCRE2_VERSION}.tar.bz2"
+  popd || exit 1
+}
+
 $1

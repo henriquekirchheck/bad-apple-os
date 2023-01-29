@@ -228,4 +228,24 @@ build_brotli() {
   popd || exit 1
 }
 
+build_pcre2() {
+  pushd build/compile/lib/"pcre2-${PCRE2_VERSION}" || exit 1
+    CFLAGS+=" -ffat-lto-objects"
+    CXXFLAGS+=" -ffat-lto-objects"
+
+    CC="${CROSSCC}-gcc" \
+    LDFLAGS="-L${ROOTFS}/usr/lib" \
+    PKG_CONFIG_LIBDIR="${ROOTFS}/usr/lib" \
+    ./configure \
+      --prefix=/usr \
+      --enable-pcre2-16 \
+      --enable-pcre2-32 \
+      --enable-jit \
+      --host=x86_64-pc-linux-musl
+
+    make -j"$PROCS"
+    make DESTDIR="${ROOTFS}" install
+  popd || exit 1
+}
+
 $1;
